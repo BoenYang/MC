@@ -15,6 +15,11 @@ public class GameScene : MonoBehaviour
         Instance = this;
     }
 
+    void Start()
+    {
+        StartGame();
+    }
+
     public void StartGame()
     {
         Instance = this;
