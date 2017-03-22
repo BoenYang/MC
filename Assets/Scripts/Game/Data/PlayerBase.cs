@@ -58,6 +58,8 @@ public class PlayerBase : MonoBehaviour
     //正在移除的方块数据
     private List<RemoveData> removingDataList = new List<RemoveData>();
 
+	private bool[,] squareVisited; 
+
     //是否是机器人判断
     public bool IsRobot { get { return isRobot; } }
     protected bool isRobot = false;
@@ -89,6 +91,8 @@ public class PlayerBase : MonoBehaviour
         startPos = new Vector3(-column * GameSetting.SquareWidth / 2f + GameSetting.SquareWidth / 2, row * GameSetting.SquareWidth / 2 - GameSetting.SquareWidth / 2, 0);
 
         SquareMap = new SquareSprite[row, column];
+
+		squareVisited = new bool[row, column];
 
         squareRoot = transform;
 
@@ -145,6 +149,17 @@ public class PlayerBase : MonoBehaviour
 
     public void SquareSpriteClick(SquareSprite square)
     {
+		for (int r = 0; r < row; r++) {
+			for(int c = 0; c < column; c++){
+				if(SquareMap[r,c] != null){
+					SquareMap[r,c].Visited = false;
+					SquareMap [r, c].connectedSquare = null;
+				}
+			}
+		}
+
+		square.Visited = true;
+
         Queue<SquareSprite> willSearchSquare = new Queue<SquareSprite>();
         willSearchSquare.Enqueue(square);
 
@@ -156,8 +171,9 @@ public class PlayerBase : MonoBehaviour
             if (searchingSquare.Row > 0)
             {
                 SquareSprite above = SquareMap[searchingSquare.Row - 1, searchingSquare.Column];
-                if (above.Type == searchingSquare.Type)
+				if (above != null && above.Type == searchingSquare.Type && !above.Visited)
                 {
+					above.Visited = true;
                     matchedSquare.Add(above);
                     willSearchSquare.Enqueue(above);
                 }
@@ -166,8 +182,9 @@ public class PlayerBase : MonoBehaviour
             if (searchingSquare.Row < SquareMap.GetLength(0) - 1)
             {
                 SquareSprite down = SquareMap[searchingSquare.Row + 1, searchingSquare.Column];
-                if (down.Type == searchingSquare.Type)
+				if (down != null && down.Type == searchingSquare.Type && !down.Visited)
                 {
+					down.Visited = true;
                     matchedSquare.Add(down);
                     willSearchSquare.Enqueue(down);
                 }
@@ -176,24 +193,43 @@ public class PlayerBase : MonoBehaviour
             if (searchingSquare.Column > 0)
             {
                 SquareSprite left = SquareMap[searchingSquare.Row, searchingSquare.Column - 1];
-                if (left.Type == searchingSquare.Type)
+				if (left != null && left.Type == searchingSquare.Type && !left.Visited)
                 {
+					left.Visited = true;
                     matchedSquare.Add(left);
                     willSearchSquare.Enqueue(left);
                 }
             }
 
-            if (searchingSquare.Row < SquareMap.GetLength(1) - 1)
+			if (searchingSquare.Column < SquareMap.GetLength(1) - 1)
             {
                 SquareSprite right = SquareMap[searchingSquare.Row, searchingSquare.Column + 1];
-                if (right.Type == searchingSquare.Type)
+				if (right != null && right.Type == searchingSquare.Type && !right.Visited)
                 {
+					right.Visited = true;
                     matchedSquare.Add(right);
                     willSearchSquare.Enqueue(right);
                 }
             }
         }
+
+		if (matchedSquare.Count >= 2) {
+			for (int i = 0; i < matchedSquare.Count; i++) {
+				matchedSquare [i].connectedSquare = matchedSquare;
+			}
+		}
     }
+
+	public void RemoveConnectedSquare(SquareSprite square){
+		List<SquareSprite> connectedSquares = square.connectedSquare;
+
+		for (int i = 0; i < connectedSquares.Count; i++) {
+			int r = connectedSquares [i].Row;
+			int c = connectedSquares [i].Column;
+			SquareMap [r, c] = null;
+			Destroy (connectedSquares [i].gameObject);
+		}
+	}
 
     //更新所有方块和障碍方块的状态
     protected virtual void UpdateState()

@@ -21,6 +21,10 @@ public class SquareSprite : MonoBehaviour
 
     public PlayerBase Player;
 
+	public bool Visited = false;
+
+	public List<SquareSprite> connectedSquare;
+
     private static Dictionary<int, string> effectDict = new Dictionary<int, string>()
     {
         { 1,"green_effect"},
@@ -69,7 +73,11 @@ public class SquareSprite : MonoBehaviour
 
     public void OnMouseUpAsButton()
     {
-
+		if (connectedSquare == null) {
+			Player.SquareSpriteClick (this);
+		} else {
+			Player.RemoveConnectedSquare (this);
+		}
     }
 
     public void UpdateState()
