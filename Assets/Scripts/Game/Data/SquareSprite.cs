@@ -17,17 +17,11 @@ public class SquareSprite : MonoBehaviour
 
     public bool Chain;
 
-    public bool HorizontalRemoved = false;
-
-    public bool VerticalRemoved = false;
-
     public SpriteRenderer Renderer;
 
-    public int UnderSameTypeSquareCount;
+    public PlayerBase Player;
 
-    public int RightSameTypeSquareCount;
-    
-    private static Dictionary<int,string> effectDict = new Dictionary<int, string>()
+    private static Dictionary<int, string> effectDict = new Dictionary<int, string>()
     {
         { 1,"green_effect"},
         { 2,"purple_effect"},
@@ -36,7 +30,7 @@ public class SquareSprite : MonoBehaviour
         { 5,"blue_effect"},
         { 6,"red_effect"},
         { 7,"brown_effect"},
-    }; 
+    };
 
 
     public bool IsAnimating
@@ -45,14 +39,6 @@ public class SquareSprite : MonoBehaviour
     }
 
     private bool isAnimating = false;
-
-    private static Sprite[] sprites;
-
-    private Vector2 mouseDownPos;
-
-    private Vector2 mouseUpPos;
-
-    private Color grayColor = new Color(0.3f,0.3f,0.3f,1.0f);
 
     public static SquareSprite CreateSquare(int type, int r, int c)
     {
@@ -76,22 +62,19 @@ public class SquareSprite : MonoBehaviour
 
         collider.size = new Vector2(0.7f, 0.7f);
 
-        go.transform.localScale = Vector3.one*0.8f;
+        go.transform.localScale = Vector3.one * 0.8f;
 
         return ss;
     }
 
-    public void OnMouseDown()
+    public void OnMouseUpAsButton()
     {
-        if (Row < 0)
-        {
-            return;
-        }
+
     }
 
     public void UpdateState()
     {
-       
+
     }
 }
 

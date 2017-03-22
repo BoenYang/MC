@@ -105,6 +105,7 @@ public class PlayerBase : MonoBehaviour
                     ss.transform.SetParent(squareRoot);
                     ss.transform.localPosition = pos;
                     ss.name = "Rect[" + r + "," + c + "]";
+                    ss.Player = this;
                     SquareMap[r, c] = ss;
                     SquareMap[r, c].gameObject.layer = squareRoot.gameObject.layer;
                 }
@@ -142,6 +143,57 @@ public class PlayerBase : MonoBehaviour
         mask.transform.localScale = new Vector3(xScale, yScale, 0);
     }
 
+    public void SquareSpriteClick(SquareSprite square)
+    {
+        Queue<SquareSprite> willSearchSquare = new Queue<SquareSprite>();
+        willSearchSquare.Enqueue(square);
+
+        List<SquareSprite> matchedSquare = new List<SquareSprite>();
+        matchedSquare.Add(square);
+        while (willSearchSquare.Count > 0)
+        {
+            SquareSprite searchingSquare = willSearchSquare.Dequeue();
+            if (searchingSquare.Row > 0)
+            {
+                SquareSprite above = SquareMap[searchingSquare.Row - 1, searchingSquare.Column];
+                if (above.Type == searchingSquare.Type)
+                {
+                    matchedSquare.Add(above);
+                    willSearchSquare.Enqueue(above);
+                }
+            }
+
+            if (searchingSquare.Row < SquareMap.GetLength(0) - 1)
+            {
+                SquareSprite down = SquareMap[searchingSquare.Row + 1, searchingSquare.Column];
+                if (down.Type == searchingSquare.Type)
+                {
+                    matchedSquare.Add(down);
+                    willSearchSquare.Enqueue(down);
+                }
+            }
+
+            if (searchingSquare.Column > 0)
+            {
+                SquareSprite left = SquareMap[searchingSquare.Row, searchingSquare.Column - 1];
+                if (left.Type == searchingSquare.Type)
+                {
+                    matchedSquare.Add(left);
+                    willSearchSquare.Enqueue(left);
+                }
+            }
+
+            if (searchingSquare.Row < SquareMap.GetLength(1) - 1)
+            {
+                SquareSprite right = SquareMap[searchingSquare.Row, searchingSquare.Column + 1];
+                if (right.Type == searchingSquare.Type)
+                {
+                    matchedSquare.Add(right);
+                    willSearchSquare.Enqueue(right);
+                }
+            }
+        }
+    }
 
     //更新所有方块和障碍方块的状态
     protected virtual void UpdateState()
