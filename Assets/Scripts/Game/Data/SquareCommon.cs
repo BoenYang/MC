@@ -3,11 +3,7 @@
 public enum SquareState
 {
     Static = 1,
-    Swap = 2,
-    Fall = 3,
-    Hung = 4,
-    Clear = 5,
-    Hide = 6,
+    Fall = 2,
 }
 
 public enum MoveDir

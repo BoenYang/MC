@@ -29,7 +29,11 @@ public class NormalMode : GameModeBase
 
     public override IEnumerator GameLoop()
     {
-        yield return 0;
+        while (true)
+        {
+            player.PlayerUpdate();
+            yield return 0;
+        }
     }
 
     public override void GameOver()

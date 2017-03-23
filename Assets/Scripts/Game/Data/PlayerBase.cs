@@ -257,7 +257,7 @@ public class PlayerBase : MonoBehaviour
         this.mapOffset = pos;
     }
 
-    private Vector3 GetPos(int r, int c)
+    public Vector3 GetPos(int r, int c)
     {
         return startPos + new Vector3(c * GameSetting.SquareWidth, -r * GameSetting.SquareWidth, 0);
     }

@@ -44,6 +44,10 @@ public class SquareSprite : MonoBehaviour
 
     private bool isAnimating = false;
 
+    public int targetRow;
+
+    public Vector3 targetPos;
+
     public static SquareSprite CreateSquare(int type, int r, int c)
     {
         GameObject go = new GameObject();
@@ -82,7 +86,53 @@ public class SquareSprite : MonoBehaviour
 
     public void UpdateState()
     {
+        SquareSprite[,] squareMap = Player.SquareMap;
 
+        switch (State)
+        {
+            case SquareState.Static:
+              
+                if (Row < squareMap.GetLength(0) - 1)
+                {
+                    SquareSprite down = squareMap[Row + 1, Column];
+                    if (down == null)
+                    {
+                        State = SquareState.Fall;
+                    }
+                    else
+                    {
+                        State = down.State;
+                    }
+                }
+                else
+                {
+                    State = SquareState.Static;
+                }
+                break;
+            case SquareState.Fall:
+                int downNullCount = 0;
+                for (int r = Row + 1; r < squareMap.GetLength(0) - 1; r++)
+                {
+                    if (squareMap[r, Column] == null)
+                    {
+                        downNullCount++;
+                    }
+                }
+
+                targetRow = Row + downNullCount;
+                Row = targetRow;
+                squareMap[Row, Column] = this;
+                targetPos = Player.GetPos(Row, Column);
+
+                transform.localPosition = Vector3.Lerp(transform.localPosition, targetPos, 3f*Time.deltaTime);
+
+                if (Vector3.Distance(transform.localPosition, targetPos) <= 0.1f)
+                {
+                    State = SquareState.Static;
+                }
+                break;
+        }
     }
+
 }
 
