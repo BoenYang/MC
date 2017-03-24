@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
+using DG.Tweening;
 using UnityEngine;
 
 public class SquareSprite : MonoBehaviour
@@ -97,7 +99,7 @@ public class SquareSprite : MonoBehaviour
                     SquareSprite down = squareMap[Row + 1, Column];
                     if (down == null)
                     {
-                        State = SquareState.Fall;
+                        State = SquareState.Hung;
                     }
                     else
                     {
@@ -109,28 +111,41 @@ public class SquareSprite : MonoBehaviour
                     State = SquareState.Static;
                 }
                 break;
-            case SquareState.Fall:
-                int downNullCount = 0;
-                for (int r = Row + 1; r < squareMap.GetLength(0) - 1; r++)
-                {
-                    if (squareMap[r, Column] == null)
-                    {
-                        downNullCount++;
-                    }
-                }
-
-                targetRow = Row + downNullCount;
-                Row = targetRow;
-                squareMap[Row, Column] = this;
-                targetPos = Player.GetPos(Row, Column);
-
-                transform.localPosition = Vector3.Lerp(transform.localPosition, targetPos, 3f*Time.deltaTime);
-
-                if (Vector3.Distance(transform.localPosition, targetPos) <= 0.1f)
-                {
-                    State = SquareState.Static;
-                }
+            case SquareState.Hung:
+                Fall();
+                State = SquareState.Fall;
                 break;
+        }
+    }
+
+    private void Fall()
+    {
+        SquareSprite[,] squareMap = Player.SquareMap;
+        int downNullCount = 0;
+        if (Row < squareMap.GetLength(0) - 1)
+        {
+            for (int r = Row + 1; r < squareMap.GetLength(0); r++)
+            {
+                if (squareMap[r, Column] == null)
+                {
+                    downNullCount++;
+                }
+            }
+
+        }
+
+        if (downNullCount > 0)
+        {
+            targetRow = Row + downNullCount;
+            targetPos = Player.GetPos(targetRow, Column);
+
+            squareMap[Row, Column] = null;
+            squareMap[targetRow, Column] = this;
+            Row = targetRow;
+            transform.DOLocalMove(targetPos, 0.1f).SetEase(Ease.Linear).OnComplete(() =>
+            {
+                State = SquareState.Static;
+            });
         }
     }
 

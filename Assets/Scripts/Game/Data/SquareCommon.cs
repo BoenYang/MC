@@ -4,6 +4,7 @@ public enum SquareState
 {
     Static = 1,
     Fall = 2,
+    Hung = 3,
 }
 
 public enum MoveDir

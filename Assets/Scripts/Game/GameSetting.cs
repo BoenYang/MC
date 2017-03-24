@@ -6,7 +6,7 @@ public static class GameSetting
 
     public static readonly int RawCount = 10;
 
-    public static readonly int ColumnCount = 1;
+    public static readonly int ColumnCount = 10;
 
     public static readonly int SquareTypeCount = 6;
 
