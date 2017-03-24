@@ -1,6 +1,7 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 [System.Serializable]
 public class PlayerBase : MonoBehaviour
@@ -58,7 +59,7 @@ public class PlayerBase : MonoBehaviour
     //正在移除的方块数据
     private List<RemoveData> removingDataList = new List<RemoveData>();
 
-	private bool[,] squareVisited; 
+    private int[] columnNullCount;
 
     //是否是机器人判断
     public bool IsRobot { get { return isRobot; } }
@@ -91,11 +92,9 @@ public class PlayerBase : MonoBehaviour
         startPos = new Vector3(-column * GameSetting.SquareWidth / 2f + GameSetting.SquareWidth / 2, row * GameSetting.SquareWidth / 2 - GameSetting.SquareWidth / 2, 0);
 
         SquareMap = new SquareSprite[row, column];
-
-		squareVisited = new bool[row, column];
-
+        columnNullCount = new int[column];
+        
         squareRoot = transform;
-
         squareRoot.localPosition = mapOffset;
 
         for (int r = 0; r < row; r++)
@@ -250,6 +249,50 @@ public class PlayerBase : MonoBehaviour
     public virtual void PlayerUpdate()
     {
         UpdateState();
+        UpdateMapStaticstic();
+        FillMap();
+    }
+
+
+    private void UpdateMapStaticstic()
+    {
+        Array.Clear(columnNullCount,0,columnNullCount.Length);
+
+        for (int c = 0; c < columnNullCount.Length; c++)
+        {
+            int nullCount = 0;
+
+            for (int r = 0; r < SquareMap.GetLength(0); r++)
+            {
+                if (SquareMap[r, c] == null)
+                {
+                    nullCount++;
+                }
+            }
+            columnNullCount[c] = nullCount;
+        }
+    }
+
+    private void FillMap()
+    {
+        for (int c = 0; c < columnNullCount.Length; c++)
+        {
+            int nullCount = columnNullCount[c];
+            if (nullCount > 0)
+            {
+                for (int i = 0; i < nullCount; i++)
+                {
+                    int type = Random.Range(1,GameSetting.SquareTypeCount);
+                    SquareSprite ss = SquareSprite.CreateSquare(type, -i -1,c);
+                    Vector3 pos = GetPos(-i - 1, c);
+                    ss.transform.SetParent(squareRoot);
+                    ss.transform.localPosition = pos;
+                    ss.Player = this;
+                    ss.DropTo(ss.Row + nullCount);
+                }
+                columnNullCount[c] = 0;
+            }
+        }
     }
 
     public void SetMapPos(Vector3 pos)

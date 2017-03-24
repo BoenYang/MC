@@ -46,10 +46,6 @@ public class SquareSprite : MonoBehaviour
 
     private bool isAnimating = false;
 
-    public int targetRow;
-
-    public Vector3 targetPos;
-
     public static SquareSprite CreateSquare(int type, int r, int c)
     {
         GameObject go = new GameObject();
@@ -100,6 +96,7 @@ public class SquareSprite : MonoBehaviour
                     if (down == null)
                     {
                         State = SquareState.Hung;
+                        Fall();
                     }
                     else
                     {
@@ -110,10 +107,6 @@ public class SquareSprite : MonoBehaviour
                 {
                     State = SquareState.Static;
                 }
-                break;
-            case SquareState.Hung:
-                Fall();
-                State = SquareState.Fall;
                 break;
         }
     }
@@ -131,22 +124,29 @@ public class SquareSprite : MonoBehaviour
                     downNullCount++;
                 }
             }
-
         }
 
         if (downNullCount > 0)
         {
-            targetRow = Row + downNullCount;
-            targetPos = Player.GetPos(targetRow, Column);
-
-            squareMap[Row, Column] = null;
-            squareMap[targetRow, Column] = this;
-            Row = targetRow;
-            transform.DOLocalMove(targetPos, 0.1f).SetEase(Ease.Linear).OnComplete(() =>
-            {
-                State = SquareState.Static;
-            });
+            DropTo(Row + downNullCount);           
         }
+    }
+
+    public void DropTo(int targetRow)
+    {
+        SquareSprite[,] squareMap = Player.SquareMap;
+        Vector3 targetPos = Player.GetPos(targetRow, Column);
+        State = SquareState.Fall;
+        if (Row >= 0)
+        {
+            squareMap[Row, Column] = null;
+        }
+        squareMap[targetRow, Column] = this;
+        Row = targetRow;
+        transform.DOLocalMove(targetPos, 0.4f).SetEase(Ease.OutCubic).OnComplete(() =>
+        {
+            State = SquareState.Static;
+        });
     }
 
 }
